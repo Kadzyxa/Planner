@@ -2,11 +2,11 @@ import React, {useState} from 'react'
 import { View, StyleSheet, TextInput, Text, TouchableOpacity } from 'react-native'
 
 export const AddFolder = ({ onSubmit }) => {
-    const [value, setValue] = useState('')
+    const [task, setTask] = useState('')
 
     const pressHandler = () => {
-        if(value.trim()){
-            onSubmit(value)
+        if(task.trim()){
+            onSubmit(task)
             setValue('')
         }
         else {
@@ -17,8 +17,8 @@ export const AddFolder = ({ onSubmit }) => {
     return (
         <View style={styles.block}>
             <TextInput style={styles.input}
-            onChangeText ={setValue}
-            value={value}
+            onChangeText ={setTask}
+            value={task}
             placeholder='Введите название папки'/>
             <TouchableOpacity style={styles.button} activeOpacity={0.4} onPress={pressHandler}>
             <Text style={styles.text}>Добавить</Text>

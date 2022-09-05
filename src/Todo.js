@@ -16,8 +16,7 @@ const styles = StyleSheet.create({
     todo: {
         backgroundColor: 'white',
         flexDirection: 'row',
-        alignItems: 'center',
-        
+        alignItems: 'center', 
         padding:15,
         borderWidth: 1,
         borderColor: '#eee',
