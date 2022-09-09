@@ -9,69 +9,20 @@ import {
   View,
 } from "react-native";
 import Constants from "expo-constants";
-import * as SQLite from "expo-sqlite";
+import {Database} from "./src/Database";
+import {createStackNavigator} from "@react-navigation/stack";
+import {AddTaskScreen} from "./src/screens/AddTaskScreen";
+import {Header} from './src/Header';
+import {TaskList} from "./src/screens/TaskList";
+import {NavigationContainer} from "@react-navigation/native";
 
-function openDatabase() {
-  if (Platform.OS === "web") {
-    return {
-      transaction: () => {
-        return {
-          executeSql: () => {},
-        };
-      },
-    };
-  }
-
-  const db = SQLite.openDatabase("db.db");
-  return db;
-}
-
-const db = openDatabase();
-
-function Items({ done: doneHeading, onPressItem }) {
-  const [items, setItems] = useState(null);
-
-  useEffect(() => {
-    db.transaction((tx) => {
-      tx.executeSql(
-        `select * from items where done = ?;`,
-        [doneHeading ? 1 : 0],
-        (_, { rows: { _array } }) => setItems(_array)
-      );
-    });
-  }, []);
-
-  const heading = doneHeading ? "Completed" : "Todo";
-
-  if (items === null || items.length === 0) {
-    return null;
-  }
-
-  return (
-    <View style={styles.sectionContainer}>
-      <Text style={styles.sectionHeading}>{heading}</Text>
-      {items.map(({ id, done, value }) => (
-        <TouchableOpacity
-          key={id}
-          onPress={() => onPressItem && onPressItem(id)}
-          style={{
-            backgroundColor: done ? "#1c9963" : "#fff",
-            borderColor: "#000",
-            borderWidth: 1,
-            padding: 8,
-          }}
-        >
-          <Text style={{ color: done ? "#fff" : "#000" }}>{value}</Text>
-        </TouchableOpacity>
-      ))}
-    </View>
-  );
-}
+const db = new Database().getDatabase()
 
 export default function App() {
   const [text, setText] = useState(null);
   const [forceUpdate, forceUpdateId] = useForceUpdate();
 
+  /*
   useEffect(() => {
     db.transaction((tx) => {
       tx.executeSql(
@@ -79,6 +30,8 @@ export default function App() {
       );
     });
   }, []);
+
+   */
 
   const add = (text) => {
     // is text empty?
@@ -94,11 +47,20 @@ export default function App() {
         );
       },
       null,
-      forceUpdate
+        forceUpdate
     );
-  };
+  }
 
   return (
+      /*
+      <View>
+        <NavigationContainer>
+          <Header />
+          <AddTaskScreen />
+        </NavigationContainer>
+      </View>
+
+       */
     <View style={styles.container}>
       <Text style={styles.heading}>SQLite Example</Text>
 
@@ -157,7 +119,66 @@ export default function App() {
         </>
       )}
     </View>
+  )
+
+
+}
+
+function Items({ done: doneHeading, onPressItem }) {
+  const [items, setItems] = useState(null);
+
+  useEffect(() => {
+    db.transaction((tx) => {
+      tx.executeSql(
+          `select * from items where done = ?;`,
+          [doneHeading ? 1 : 0],
+          (_, { rows: { _array } }) => setItems(_array)
+      );
+    });
+  }, []);
+
+  const heading = doneHeading ? "Completed" : "Todo";
+
+  if (items === null || items.length === 0) {
+    return null;
+  }
+
+  return (
+      <View style={styles.sectionContainer}>
+        <Text style={styles.sectionHeading}>{heading}</Text>
+        {items.map(({ id, done, value }) => (
+            <TouchableOpacity
+                key={id}
+                onPress={() => onPressItem && onPressItem(id)}
+                style={{
+                  backgroundColor: done ? "#1c9963" : "#fff",
+                  borderColor: "#000",
+                  borderWidth: 1,
+                  padding: 8,
+                }}
+            >
+              <Text style={{ color: done ? "#fff" : "#000" }}>{value}</Text>
+            </TouchableOpacity>
+        ))}
+      </View>
   );
+}
+
+const Stack = createStackNavigator()
+
+const Navigation = () => {
+  return(
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen
+            name="TaskList"
+            component={TaskList}
+        />
+        <Stack.Screen
+          name="AddTaskScreen"
+          component={AddTaskScreen}
+        />
+      </Stack.Navigator>
+  )
 }
 
 function useForceUpdate() {
@@ -165,7 +186,8 @@ function useForceUpdate() {
   return [() => setValue(value + 1), value];
 }
 
-const styles = StyleSheet.create({
+
+export const styles = StyleSheet.create({
   container: {
     backgroundColor: "#fff",
     flex: 1,
