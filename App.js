@@ -17,10 +17,64 @@ import Menu from './src/side-menu';
 import {Header} from './src/Header';
 import {NavigationContainer} from "@react-navigation/native";*/
 
-const db = new Database()
-//const image = require('./assets/menu.png');
+function openDatabase() {
+  if (Platform.OS === "web") {
+    return {
+      transaction: () => {
+        return {
+          executeSql: () => {},
+        };
+      },
+    };
+  }
 
-export default function App () {
+  const db = SQLite.openDatabase("db.db");
+  return db;
+}
+
+const db = openDatabase();
+
+function Items({ done: doneHeading, onPressItem }) {
+  const [items, setItems] = useState(null);
+
+  useEffect(() => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        `select * from items where done = ?;`,
+        [doneHeading ? 1 : 0],
+        (_, { rows: { _array } }) => setItems(_array)
+      );
+    });
+  }, []);
+
+  const heading = doneHeading ? "Completed" : "Todo";
+
+  if (items === null || items.length === 0) {
+    return null;
+  }
+
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionHeading}>{heading}</Text>
+      {items.map(({ id, done, value }) => (
+        <TouchableOpacity
+          key={id}
+          onPress={() => onPressItem && onPressItem(id)}
+          style={{
+            backgroundColor: done ? "#1c9963" : "#fff",
+            borderColor: "#000",
+            borderWidth: 1,
+            padding: 8,
+          }}
+        >
+          <Text style={{ color: done ? "#fff" : "#000" }}>{value}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+}
+
+export default function App() {
   const [text, setText] = useState(null);
   const [forceUpdate, forceUpdateId] = useForceUpdate();
 
