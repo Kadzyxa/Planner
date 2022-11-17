@@ -10,19 +10,21 @@ import {
 } from "react-native";
 import Constants from "expo-constants";
 import {Database} from "./src/Database";
-import {createStackNavigator} from "@react-navigation/stack";
-import {AddTaskScreen} from "./src/screens/AddTaskScreen";
+//import {createStackNavigator} from "@react-navigation/stack";
+//import SideMenu from 'react-native-side-menu';
+/*import SideMenu from 'react-native-side-menu-updated'
+import Menu from './src/side-menu';
 import {Header} from './src/Header';
-import {TaskList} from "./src/screens/TaskList";
-import {NavigationContainer} from "@react-navigation/native";
+import {NavigationContainer} from "@react-navigation/native";*/
 
-const db = new Database().getDatabase()
+const db = new Database()
+//const image = require('./assets/menu.png');
 
-export default function App() {
+export default function App () {
   const [text, setText] = useState(null);
   const [forceUpdate, forceUpdateId] = useForceUpdate();
 
-  /*
+  
   useEffect(() => {
     db.transaction((tx) => {
       tx.executeSql(
@@ -30,9 +32,8 @@ export default function App() {
       );
     });
   }, []);
-
-   */
-
+   
+  
   const add = (text) => {
     // is text empty?
     if (text === null || text === "") {
@@ -51,19 +52,9 @@ export default function App() {
     );
   }
 
-  return (
-      /*
-      <View>
-        <NavigationContainer>
-          <Header />
-          <AddTaskScreen />
-        </NavigationContainer>
-      </View>
-
-       */
+  return (     
     <View style={styles.container}>
       <Text style={styles.heading}>SQLite Example</Text>
-
       {Platform.OS === "web" ? (
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
@@ -78,8 +69,8 @@ export default function App() {
             <TextInput
               onChangeText={(text) => setText(text)}
               onSubmitEditing={() => {
-                add(text);
-                setText(null);
+                add(text),
+                setText(null)
               }}
               placeholder="what do you need to do?"
               style={styles.input}
@@ -119,10 +110,10 @@ export default function App() {
         </>
       )}
     </View>
-  )
-
-
+  );
 }
+
+
 
 function Items({ done: doneHeading, onPressItem }) {
   const [items, setItems] = useState(null);
@@ -138,6 +129,7 @@ function Items({ done: doneHeading, onPressItem }) {
   }, []);
 
   const heading = doneHeading ? "Completed" : "Todo";
+  //const [checked, setChecked] = React.useState(false);
 
   if (items === null || items.length === 0) {
     return null;
@@ -152,40 +144,27 @@ function Items({ done: doneHeading, onPressItem }) {
                 onPress={() => onPressItem && onPressItem(id)}
                 style={{
                   backgroundColor: done ? "#1c9963" : "#fff",
-                  borderColor: "#000",
-                  borderWidth: 1,
+                  /*borderColor: "#000",
+                  borderWidth: 1,*/
                   padding: 8,
                 }}
             >
-              <Text style={{ color: done ? "#fff" : "#000" }}>{value}</Text>
+              <Text style={{ 
+                color: done ? "#fff" : "#000",
+                textDecorationLine: done ? "line-through" : "none",
+                }}>{value}</Text>
             </TouchableOpacity>
         ))}
       </View>
   );
 }
 
-const Stack = createStackNavigator()
-
-const Navigation = () => {
-  return(
-      <Stack.Navigator screenOptions={{headerShown: false}}>
-        <Stack.Screen
-            name="TaskList"
-            component={TaskList}
-        />
-        <Stack.Screen
-          name="AddTaskScreen"
-          component={AddTaskScreen}
-        />
-      </Stack.Navigator>
-  )
-}
+//const Stack = createStackNavigator()
 
 function useForceUpdate() {
   const [value, setValue] = useState(0);
   return [() => setValue(value + 1), value];
 }
-
 
 export const styles = StyleSheet.create({
   container: {
